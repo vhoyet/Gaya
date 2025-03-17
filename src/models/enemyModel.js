@@ -2,6 +2,8 @@ import HealthModel from "./healthModel.js";
 
 export default class EnemyModel {
   constructor(x, y, speed = 80) {
+    this.initialX = x;  // Store original position
+    this.initialY = y;
     this.x = x;
     this.y = y;
     this.targetX = x;
@@ -16,6 +18,8 @@ export default class EnemyModel {
     this.lastAttackTime = 0;
     this.aggroRadius = 200;
     this.player = null;
+    this.isDead = false;
+    this.soulsValue = 5;
     this.view = null; // View will be set later
   }
 
@@ -29,8 +33,8 @@ export default class EnemyModel {
 
   getRandomPosition() {
     return {
-      x: Phaser.Math.Between(100, 700),
-      y: Phaser.Math.Between(100, 500),
+      x: Phaser.Math.Between(this.initialX - 200, this.initialX + 200),
+      y: Phaser.Math.Between(this.initialY - 200, this.initialY + 200),
     };
   }
 
@@ -62,20 +66,17 @@ export default class EnemyModel {
     }
   }
 
-  update(deltaTime, currentTime) {
+  update(currentTime, deltaTime) {
+    console.log(this.isDead)
+    if (this.isDead) return
     if (!this.player) return;
 
     const distanceToPlayer = Phaser.Math.Distance.Between(this.x, this.y, this.player.x, this.player.y);
-    console.log(this.player.x, this.player.y)
 
     // Check if player is in range to attack
     if (distanceToPlayer <= this.attackRange) {
         console.log("Enemy within attack range, stopping movement.");
         this.moving = false;
-        
-        if (this.view) {
-            this.view.stopMoving();  // Ensure animation stops
-        }
 
         // Attack if cooldown allows
         if (this.canAttack(this.player, currentTime)) {
@@ -107,9 +108,6 @@ export default class EnemyModel {
         this.y = this.targetY;
         this.moving = false;
 
-        if (this.view) {
-            this.view.stopMoving();
-        }
         return;
     }
 
@@ -125,11 +123,46 @@ export default class EnemyModel {
 
   takeDamage(amount) {
     this.health.takeDamage(amount);
+
+    if (this.health.currentHealth <= 0)
+      this.die();
+  }
+
+  die() {
+    console.log("☠️ Enemy died! Respawning in 5 seconds...");
+    this.moving = false;
+    this.isDead = true;
+
+    if (this.view) {
+        this.view.playDeathAnimation();
+        this.view.hide(); // Hide enemy
+        this.health.view.hide()
+    }
+
+    setTimeout(() => {
+        this.respawn();
+    }, 5000); // 5-second respawn
+  }
+
+  respawn() {
+    console.log("🟢 Enemy respawned at original position!");
+    this.isDead = false;
+
+    this.health.currentHealth = this.health.maxHealth; // Reset health
+    this.x = this.initialX; // Move back to original spawn
+    this.y = this.initialY;
+
+    if (this.view) {
+        this.view.show();
+        this.health.view.show()
+        this.view.updatePosition();
+    }
+
+    this.moving = false;
   }
 
   canAttack(target, currentTime) {
     if (currentTime - this.lastAttackTime < this.attackCooldown) return false;
-    console.log("target:", target.x, target.y)
     const distance = Phaser.Math.Distance.Between(this.x, this.y, target.x, target.y);
     return distance <= this.attackRange;
   }

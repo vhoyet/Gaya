@@ -1,77 +1,79 @@
 import HealthModel from "./healthModel.js";
 
 export default class PlayerModel {
-  constructor(x, y) {
-    this.x = 400;
-    this.y = 300;
+  constructor(x, y, inventory) {
+    this.x = x;
+    this.y = y;
     this.speed = 160;
-    this.direction = "down"; // Default direction
-    this.health = new HealthModel(this, 100); // Attach health to player
+    this.direction = "down"; 
+    this.inventory = inventory;
+    this.health = new HealthModel(this, 100);
     this.attackDamage = 10;
-    this.attackRange = 50; // Attack range in pixels
-    this.attackCooldown = 1000; // 1 second cooldown
+    this.attackRange = 50;
+    this.attackCooldown = 1000; // in ms
     this.lastAttackTime = 0;
-    this.state = "idle";  // "idle", "moving", "attacking"
+    this.state = "idle";  
     this.isAttacking = false;
     this.view = null;
   }
 
   setView(view) {
-    this.view = view
+    this.view = view;
+  }
+
+  setDirection(direction) {
+    this.direction = direction;
+  }
+
+  startMoving(velocityX, velocityY) {
+    this.state = "moving";
+    this.x += velocityX / 60;  // Adjusting for framerate (speed is per second)
+    this.y += velocityY / 60;
+    this.view.setVelocity(velocityX, velocityY);
+    if (!this.isAttacking) {
+      this.view.playMoveAnimation(this.direction);
+    }
+  }
+
+  stopMoving() {
+    if (this.state === "moving") {
+      this.state = "idle";
+      this.view.setVelocity(0, 0);
+      if (!this.isAttacking) {
+        this.view.playIdleAnimation(this.direction);
+      }
+    }
   }
 
   takeDamage(amount) {
     this.health.takeDamage(amount);
   }
 
-  canAttack(target, currentTime) {
-    if (currentTime - this.lastAttackTime < this.attackCooldown) return false;
+  canAttack(target, delta) {
+    console.log(delta, this.lastAttackTime)
+    if (delta - this.lastAttackTime < this.attackCooldown) return false;
 
     const distance = Phaser.Math.Distance.Between(this.x, this.y, target.x, target.y);
-    if (distance > this.attackRange) {
-      this.attacking = false
-    } else {
-      return true
-    }
+    return distance <= this.attackRange;
   }
 
-  attack(target, currentTime) {
+  attack(target, delta) {
+    if (!target.isDead && this.canAttack(target, delta)) {
       target.takeDamage(this.attackDamage);
-      this.lastAttackTime = currentTime;
+      this.lastAttackTime = delta;
       this.state = "attacking";
-      this.attacking = true;
-      if (this.direction == "left" || this.direction == "right") {
-        let direction = target.x < this.view.sprite.x ? "left" : "right";
-        this.view.playAttackAnimation(direction); // Optional attack animation
-      } else {
-        let direction = target.y < this.view.sprite.y ? "up" : "down";
-        this.view.playAttackAnimation(direction); // Optional attack animation
+      this.isAttacking = true;
+
+      this.view.playAttackAnimation(this.direction);
+      
+      this.view.sprite.once("animationcomplete", () => {
+        this.isAttacking = false;
+        this.stopMoving();
+      });
+
+      if (!target.isDead && target.health.currentHealth <= this.attackDamage) {
+        this.inventory.addItem("Soul", target.soulsValue);
       }
-
-  }
-
-  heal(amount) {
-    this.health.heal(amount);
-  }
-
-  move(direction) {
-    this.direction = direction;
-
-    if (direction === "left") this.x -= this.speed / 60;
-    if (direction === "right") this.x += this.speed / 60;
-    if (direction === "up") this.y -= this.speed / 60;
-    if (direction === "down") this.y += this.speed / 60;
-
-
-    if (!this.attacking) {
-      this.view.playMoveAnimation(direction);
     }
-
-    this.view.updatePosition();
-  }
-
-  stopMoving() {
-    if (!this.attacking)
-      this.view.playIdleAnimation(this.direction)
   }
 }

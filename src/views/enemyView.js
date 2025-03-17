@@ -38,6 +38,34 @@ export default class EnemyView {
         });
 
         this.scene.anims.create({
+          key: "orc-idle-up",
+          frames: this.scene.anims.generateFrameNumbers("orc", { start: 104, end: 104 }),
+          frameRate: 8,
+          repeat: -1,
+        });
+
+        this.scene.anims.create({
+          key: "orc-idle-left",
+          frames: this.scene.anims.generateFrameNumbers("orc", { start: 117, end: 117 }),
+          frameRate: 8,
+          repeat: -1,
+        });
+
+        this.scene.anims.create({
+          key: "orc-idle-down",
+          frames: this.scene.anims.generateFrameNumbers("orc", { start: 130, end: 130 }), // Adjust for your sprite
+          frameRate: 8,
+          repeat: -1,
+        });
+    
+        this.scene.anims.create({
+          key: "orc-idle-right",
+          frames: this.scene.anims.generateFrameNumbers("orc", { start: 143, end: 143 }),
+          frameRate: 8,
+          repeat: -1,
+        });
+
+        this.scene.anims.create({
           key: "orc-attack-up",
           frames: [
             { key: "orc_attack_up", frame: 1 },
@@ -99,12 +127,24 @@ export default class EnemyView {
     this.sprite.play(`orc-walk-${direction}`, true);
   }
 
-  playIdleAnimation() {
-    return
+  playIdleAnimation(direction) {
+    this.sprite.play(`orc-idle-${direction}`, true);
   }
 
   playAttackAnimation(direction) {
     this.sprite.play(`orc-attack-${direction}`, true);
+  }
+
+  playDeathAnimation() {
+    return;
+}
+
+  hide() {
+      this.sprite.setVisible(false); // Hide sprite
+  }
+
+  show() {
+      this.sprite.setVisible(true); // Show sprite
   }
 
   stopMoving() {

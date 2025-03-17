@@ -1,148 +1,136 @@
-
-
 export default class PlayerView {
   constructor(scene, model) {
     this.scene = scene;
     this.model = model;
-
-    // Create the player sprite
-    this.sprite = scene.physics.add.sprite(this.model.x, this.model.x, "player");
     this.model.setView(this);
+
+    // ✅ Create the player sprite with physics
+    this.sprite = scene.physics.add.sprite(this.model.x, this.model.y, "player");
     this.sprite.setCollideWorldBounds(true);
+    this.sprite.body.setImmovable(false);
+    this.sprite.body.setVelocity(0, 0); // Start stationary
 
-    // Define animations
-    this.scene.anims.create({
-      key: "player-walk-down",
-      frames: this.scene.anims.generateFrameNumbers("player", { start: 260, end: 268 }), // Adjust for your sprite
-      frameRate: 8,
-      repeat: -1,
-    });
-
-    this.scene.anims.create({
-      key: "player-walk-left",
-      frames: this.scene.anims.generateFrameNumbers("player", { start: 234, end: 242 }),
-      frameRate: 8,
-      repeat: -1,
-    });
-
-    this.scene.anims.create({
-      key: "player-walk-right",
-      frames: this.scene.anims.generateFrameNumbers("player", { start: 286, end: 294 }),
-      frameRate: 8,
-      repeat: -1,
-    });
-
-    this.scene.anims.create({
-      key: "player-walk-up",
-      frames: this.scene.anims.generateFrameNumbers("player", { start: 208, end: 216 }),
-      frameRate: 8,
-      repeat: -1,
-    });
-
-    this.scene.anims.create({
-      key: "player-idle-down",
-      frames: this.scene.anims.generateFrameNumbers("player", { start: 260, end: 260 }), // Adjust for your sprite
-      frameRate: 8,
-      repeat: 0,
-    });
-
-    this.scene.anims.create({
-      key: "player-idle-left",
-      frames: this.scene.anims.generateFrameNumbers("player", { start: 234, end: 234 }),
-      frameRate: 8,
-      repeat: 0,
-    });
-
-    this.scene.anims.create({
-      key: "player-idle-right",
-      frames: this.scene.anims.generateFrameNumbers("player", { start: 286, end: 286 }),
-      frameRate: 8,
-      repeat: 0,
-    });
-
-    this.scene.anims.create({
-      key: "player-idle-up",
-      frames: this.scene.anims.generateFrameNumbers("player", { start: 208, end: 208 }),
-      frameRate: 8,
-      repeat: 0,
-    });
-
-    this.scene.anims.create({
-      key: "player-attack-up",
-      frames: [
-        { key: "player_attack_up", frame: 0 },
-        { key: "player_attack_up", frame: 2 },
-        { key: "player_attack_up", frame: 4 },
-        { key: "player_attack_up", frame: 6 },
-        { key: "player_attack_up", frame: 8 },
-        { key: "player_attack_up", frame: 10 }
-      ],
-      frameRate: 12,
-      repeat: 0,
-    })
-
-    this.scene.anims.create({
-      key: "player-attack-down",
-      frames: [
-        { key: "player_attack_down", frame: 0 },
-        { key: "player_attack_down", frame: 2 },
-        { key: "player_attack_down", frame: 4 },
-        { key: "player_attack_down", frame: 6 },
-        { key: "player_attack_down", frame: 8 },
-        { key: "player_attack_down", frame: 10 }
-      ],
-      frameRate: 12,
-      repeat: 0,
-    })
-
-    this.scene.anims.create({
-      key: "player-attack-right",
-      frames: [
-        { key: "player_attack_right", frame: 0 },
-        { key: "player_attack_right", frame: 2 },
-        { key: "player_attack_right", frame: 4 },
-        { key: "player_attack_right", frame: 6 },
-        { key: "player_attack_right", frame: 8 },
-        { key: "player_attack_right", frame: 10 }
-      ],
-      frameRate: 12,
-      repeat: 0,
-    })
-
-    this.scene.anims.create({
-      key: "player-attack-left",
-      frames: [
-        { key: "player_attack_left", frame: 0 },
-        { key: "player_attack_left", frame: 2 },
-        { key: "player_attack_left", frame: 4 },
-        { key: "player_attack_left", frame: 6 },
-        { key: "player_attack_left", frame: 8 },
-        { key: "player_attack_left", frame: 10 }
-      ],
-      frameRate: 12,
-      repeat: 0,
-    })
+    // ✅ Define all animations (kept from your original)
+    this.createAnimations();
   }
 
+  createAnimations() {
+    const anims = this.scene.anims;
+
+    anims.create({
+      key: "player-walk-down",
+      frames: anims.generateFrameNumbers("player", { start: 260, end: 268 }),
+      frameRate: 8,
+      repeat: -1,
+    });
+
+    anims.create({
+      key: "player-walk-left",
+      frames: anims.generateFrameNumbers("player", { start: 234, end: 242 }),
+      frameRate: 8,
+      repeat: -1,
+    });
+
+    anims.create({
+      key: "player-walk-right",
+      frames: anims.generateFrameNumbers("player", { start: 286, end: 294 }),
+      frameRate: 8,
+      repeat: -1,
+    });
+
+    anims.create({
+      key: "player-walk-up",
+      frames: anims.generateFrameNumbers("player", { start: 208, end: 216 }),
+      frameRate: 8,
+      repeat: -1,
+    });
+
+    anims.create({
+      key: "player-idle-down",
+      frames: anims.generateFrameNumbers("player", { start: 260, end: 260 }),
+      frameRate: 8,
+      repeat: 0,
+    });
+
+    anims.create({
+      key: "player-idle-left",
+      frames: anims.generateFrameNumbers("player", { start: 234, end: 234 }),
+      frameRate: 8,
+      repeat: 0,
+    });
+
+    anims.create({
+      key: "player-idle-right",
+      frames: anims.generateFrameNumbers("player", { start: 286, end: 286 }),
+      frameRate: 8,
+      repeat: 0,
+    });
+
+    anims.create({
+      key: "player-idle-up",
+      frames: anims.generateFrameNumbers("player", { start: 208, end: 208 }),
+      frameRate: 8,
+      repeat: 0,
+    });
+
+    // ✅ Attack animations (kept from your original)
+    anims.create({
+      key: "player-attack-up",
+      frames: this.scene.anims.generateFrameNumbers("player_attack_up", { frames: [0, 2, 4, 6, 8, 10] }),
+      frameRate: 12,
+      repeat: 0,
+    });
+
+    anims.create({
+      key: "player-attack-down",
+      frames: this.scene.anims.generateFrameNumbers("player_attack_down", { frames: [0, 2, 4, 6, 8, 10] }),
+      frameRate: 12,
+      repeat: 0,
+    });
+
+    anims.create({
+      key: "player-attack-right",
+      frames: this.scene.anims.generateFrameNumbers("player_attack_right", { frames: [0, 2, 4, 6, 8, 10] }),
+      frameRate: 12,
+      repeat: 0,
+    });
+
+    anims.create({
+      key: "player-attack-left",
+      frames: this.scene.anims.generateFrameNumbers("player_attack_left", { frames: [0, 2, 4, 6, 8, 10] }),
+      frameRate: 12,
+      repeat: 0,
+    });
+  }
+
+  /** ✅ Proper physics-based movement */
+  setVelocity(x, y) {
+    this.sprite.setVelocity(x, y);
+  }
+
+  /** ✅ Ensure sprite matches model position */
   updatePosition() {
     this.sprite.setX(this.model.x);
     this.sprite.setY(this.model.y);
   }
 
+  /** ✅ Play correct movement animation */
   playMoveAnimation(direction) {
-    if (this.sprite.anims.currentAnim?.key !== `walk-${direction}`) {
+    if (this.sprite.anims.currentAnim?.key !== `player-walk-${direction}`) {
       this.sprite.play(`player-walk-${direction}`, true);
     }
   }
 
+  /** ✅ Play correct idle animation */
   playIdleAnimation(direction) {
     this.sprite.play(`player-idle-${direction}`, true);
   }
 
+  /** ✅ Attack animation handling */
   playAttackAnimation(direction) {
     this.sprite.play(`player-attack-${direction}`, true);
-    this.sprite.once("animationcomplete", (animation) => {
-      this.playIdleAnimation(direction)
-  });
+    this.sprite.once("animationcomplete", () => {
+      this.playIdleAnimation(direction);
+    });
   }
 }
