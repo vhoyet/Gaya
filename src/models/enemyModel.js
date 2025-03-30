@@ -67,7 +67,6 @@ export default class EnemyModel {
   }
 
   update(currentTime, deltaTime) {
-    console.log(this.isDead)
     if (this.isDead) return
     if (!this.player) return;
 
@@ -75,12 +74,10 @@ export default class EnemyModel {
 
     // Check if player is in range to attack
     if (distanceToPlayer <= this.attackRange) {
-        console.log("Enemy within attack range, stopping movement.");
         this.moving = false;
 
         // Attack if cooldown allows
         if (this.canAttack(this.player, currentTime)) {
-            console.log("Attacking player!");
             this.attack(this.player, currentTime);
         }
 
@@ -89,10 +86,8 @@ export default class EnemyModel {
 
     // If out of attack range but still within aggro, move toward player
     if (this.isPlayerInAggroRange()) {
-        console.log("Chasing player...");
         this.moveTo(this.player.x, this.player.y);
     } else if (!this.moving) {
-        console.log("Wandering randomly...");
         const newPos = this.getRandomPosition();
         this.moveTo(newPos.x, newPos.y);
     }
@@ -103,7 +98,6 @@ export default class EnemyModel {
     const distance = Phaser.Math.Distance.Between(this.x, this.y, this.targetX, this.targetY);
 
     if (distance < 5) {
-        console.log("Reached target position.");
         this.x = this.targetX;
         this.y = this.targetY;
         this.moving = false;
@@ -121,17 +115,17 @@ export default class EnemyModel {
     }
 }
 
-  takeDamage(amount) {
-    this.health.takeDamage(amount);
+  takeDamage(player) {
+    this.health.takeDamage(player.attackDamage);
 
     if (this.health.currentHealth <= 0)
       this.die();
   }
 
   die() {
-    console.log("☠️ Enemy died! Respawning in 5 seconds...");
     this.moving = false;
     this.isDead = true;
+    this.view.scene.events.emit("enemy_killed", "orc");
 
     if (this.view) {
         this.view.playDeathAnimation();
@@ -145,7 +139,6 @@ export default class EnemyModel {
   }
 
   respawn() {
-    console.log("🟢 Enemy respawned at original position!");
     this.isDead = false;
 
     this.health.currentHealth = this.health.maxHealth; // Reset health
@@ -171,7 +164,7 @@ export default class EnemyModel {
     if (this.canAttack(target, currentTime)) {
       target.takeDamage(this.attackDamage);
       this.lastAttackTime = currentTime;
-      let direction = target.x < this.view.sprite.x ? "left" : "right";
+      let direction = target.x < this.view.x ? "left" : "right";
       this.view.playAttackAnimation(direction);
     }
   }
