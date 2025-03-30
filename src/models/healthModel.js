@@ -19,5 +19,11 @@ export default class HealthModel {
       this.currentHealth = Math.min(this.maxHealth, this.currentHealth + amount);
       if (this.view) this.view.updateHealth(this.currentHealth, this.maxHealth);
     }
+
+    updateHealth(maxHealth) {
+      this.maxHealth = maxHealth;
+      this.currentHealth = maxHealth;
+      if (this.view) this.view.updateHealth(this.currentHealth, this.maxHealth);
+    }
   }
   

@@ -32,6 +32,8 @@ export default class HealthView {
       // ✅ Make sure the player's health bar stays in place
       this.healthBar.setScrollFactor(0);
       this.healthText.setScrollFactor(0);
+      this.healthBar.setDepth(20);
+      this.healthText.setDepth(20);
     } else {
       // ✅ Entity health bars (move with camera)
       this.barWidth = 40;
