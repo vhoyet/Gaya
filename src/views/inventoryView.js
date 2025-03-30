@@ -12,7 +12,7 @@ export default class InventoryView {
       this.inventoryText = this.scene.add.text(
         this.x, 
         this.y, 
-        "0 Souls", 
+        "0 Souls\n0 Wood\n0 Iron", 
         {
           fontSize: "10px",
           fontFamily: "Arial",
@@ -21,11 +21,14 @@ export default class InventoryView {
         }
       );
       this.inventoryText.setScrollFactor(0);
+      this.inventoryText.setDepth(20);
     }
   
     updateInventory(items) {
       const soulCount = items["Soul"] || 0;
-      this.inventoryText.setText(`${soulCount} Souls`);
+      const woodCount = items["Wood"] || 0;
+      const ironCount = items["Iron"] || 0;
+      this.inventoryText.setText(`${soulCount} Souls\n${woodCount} Wood\n${ironCount} Iron`);
     }
   }
   
