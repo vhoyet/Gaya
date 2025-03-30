@@ -7,6 +7,11 @@ export default class PlayerController {
   }
 
   update(delta, time) {
+    if (this.scene.dialogOpen || this.scene.menuOpen) {
+      this.model.stopMoving();
+      return; // 🚫 Stop movement when dialogue is active
+    }
+    
     if (this.collision) {
       this.collision = false;
       return;
@@ -41,8 +46,28 @@ export default class PlayerController {
 
   /** ✅ New function to automatically attack when an enemy is nearby */
   tryAutoAttack(delta) {
-    const target = this.scene.enemyModel;  // Assuming you have a reference to an enemy model
-
-    this.model.attack(target, delta);
+    let target = this.findClosestTarget();
+    if (target)
+      this.model.attack(target.model, delta);
   }
+
+  findClosestTarget() {
+    const enemies = this.scene.enemies.getChildren(); // Get all enemies
+    const interactive_objects = this.scene.interactive_objects.getChildren(); // Get all trees
+
+    let closestTarget = null;
+    let closestDistance = Infinity;
+
+    [...enemies, ...interactive_objects].forEach(target => {
+        if (!target.model.isDead) {
+            const distance = Phaser.Math.Distance.Between(this.model.x, this.model.y, target.model.x, target.model.y);
+            if (distance < closestDistance && distance <= this.model.attackRange) {
+                closestTarget = target;
+                closestDistance = distance;
+            }
+        }
+    });
+
+    return closestTarget;
+}
 }

@@ -1,17 +1,52 @@
-export default class PlayerView {
+export default class PlayerView extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, model) {
+    super(scene, model.x, model.y, "player");
+
     this.scene = scene;
     this.model = model;
     this.model.setView(this);
 
-    // ✅ Create the player sprite with physics
-    this.sprite = scene.physics.add.sprite(this.model.x, this.model.y, "player");
-    this.sprite.setCollideWorldBounds(true);
-    this.sprite.body.setImmovable(false);
-    this.sprite.body.setVelocity(0, 0); // Start stationary
+    // ✅ Add the sprite to the scene and physics system
+    scene.add.existing(this);
+    scene.physics.add.existing(this);
 
-    // ✅ Define all animations (kept from your original)
+    this.setCollideWorldBounds(true);
+    this.body.setImmovable(false);
+    this.body.setVelocity(0, 0); // Start stationary
+
+    // ✅ Define animations
     this.createAnimations();
+  }
+
+  /** ✅ Proper physics-based movement */
+  setVelocity(x, y) {
+    this.body.setVelocity(x, y);
+  }
+
+  /** ✅ Ensure sprite matches model position */
+  updatePosition() {
+    this.setX(this.model.x);
+    this.setY(this.model.y);
+  }
+
+  /** ✅ Play correct movement animation */
+  playMoveAnimation(direction) {
+    if (this.anims.currentAnim?.key !== `player-walk-${direction}`) {
+      this.play(`player-walk-${direction}`, true);
+    }
+  }
+
+  /** ✅ Play correct idle animation */
+  playIdleAnimation(direction) {
+    this.play(`player-idle-${direction}`, true);
+  }
+
+  /** ✅ Attack animation handling */
+  playAttackAnimation(direction) {
+    this.play(`player-attack-${direction}`, true);
+    this.once("animationcomplete", () => {
+      this.playIdleAnimation(direction);
+    });
   }
 
   createAnimations() {
@@ -100,37 +135,6 @@ export default class PlayerView {
       frames: this.scene.anims.generateFrameNumbers("player_attack_left", { frames: [0, 2, 4, 6, 8, 10] }),
       frameRate: 12,
       repeat: 0,
-    });
-  }
-
-  /** ✅ Proper physics-based movement */
-  setVelocity(x, y) {
-    this.sprite.setVelocity(x, y);
-  }
-
-  /** ✅ Ensure sprite matches model position */
-  updatePosition() {
-    this.sprite.setX(this.model.x);
-    this.sprite.setY(this.model.y);
-  }
-
-  /** ✅ Play correct movement animation */
-  playMoveAnimation(direction) {
-    if (this.sprite.anims.currentAnim?.key !== `player-walk-${direction}`) {
-      this.sprite.play(`player-walk-${direction}`, true);
-    }
-  }
-
-  /** ✅ Play correct idle animation */
-  playIdleAnimation(direction) {
-    this.sprite.play(`player-idle-${direction}`, true);
-  }
-
-  /** ✅ Attack animation handling */
-  playAttackAnimation(direction) {
-    this.sprite.play(`player-attack-${direction}`, true);
-    this.sprite.once("animationcomplete", () => {
-      this.playIdleAnimation(direction);
     });
   }
 }
